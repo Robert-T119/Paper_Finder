@@ -2,7 +2,7 @@ import re
 import openai
 import time
 import pandas as pd
-from constants import *
+from Constants import *
 import requests
 import numpy as np
 import nltk

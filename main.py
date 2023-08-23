@@ -3,11 +3,10 @@ import pandas as pd
 import tkinter as tk
 import datetime
 
-from data_fetching import get_total_papers_for_period, extract_papers_from_openalex_search, generate_date_ranges
-from text_processing import clean_text, lowercase_text, tokenize_text, remove_stopwords, lemmatize_tokens, is_relevant, run_prediction, get_embedding
-from gui import GUI
-from constants import concept_list
-
+from Data_Fetching import get_total_papers_for_period, extract_papers_from_openalex_search, generate_date_ranges
+from Text_Processing import clean_text, lowercase_text, tokenize_text, remove_stopwords, lemmatize_tokens, is_relevant, run_prediction, get_embedding
+from Gui import GUI
+from Constants import concept_list
 
 # Functions
 def execute_script():
@@ -92,4 +91,3 @@ def execute_script():
 if __name__ == "__main__":
     app = GUI(execute_script)
     app.root.mainloop()
-

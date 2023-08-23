@@ -3,7 +3,7 @@ from tkinter import ttk
 from ttkthemes import ThemedTk
 from tkinter import PhotoImage
 import queue
-from constants import concept_list
+from Constants import concept_list
 import threading
 
 class GUI:
