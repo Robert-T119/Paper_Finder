@@ -5,23 +5,23 @@ import datetime
 
 from data_fetching import get_total_papers_for_period, extract_papers_from_openalex_search, generate_date_ranges
 from text_processing import clean_text, lowercase_text, tokenize_text, remove_stopwords, lemmatize_tokens, is_relevant, run_prediction, get_embedding
-from gui import show_data, update_progress_bar,initialize_gui
+from gui import GUI
 from constants import concept_list
 
 
 # Functions
-def execute_script(canvas, progress_var, progress_percentage_label):
+def execute_script():
     # Disable the button while processing
-    execute_button.config(state=tk.DISABLED)
-    status_label.config(text="Processing...")
+    app.execute_button.config(state=tk.DISABLED)
+    app.status_label.config(text="Processing...")
 
     try:
-        selected_concept_names = [concept_id_entry.get(idx) for idx in concept_id_entry.curselection()]
+        selected_concept_names = [app.concept_id_entry.get(idx) for idx in app.concept_id_entry.curselection()]
         selected_concept_ids = [url for name, url in concept_list if name in selected_concept_names]
 
-        from_publication_date = from_publication_date_entry.get()
-        to_publication_date = to_publication_date_entry.get()
-        target_embedding_word = target_embedding_word_entry.get()
+        from_publication_date = app.from_publication_date_entry.get()
+        to_publication_date = app.to_publication_date_entry.get()
+        target_embedding_word = app.target_embedding_word_entry.get()
 
         papers_fetched_so_far = 0  # Counter to keep track of the total papers fetched so far
         # Fetch the total number of papers for the entire period for all selected concepts
@@ -35,7 +35,7 @@ def execute_script(canvas, progress_var, progress_percentage_label):
         limit = 100000
         for concept_id in selected_concept_ids:
             for date in generate_date_ranges(from_publication_date, to_publication_date):
-                current_date_label.config(text=f"Fetching papers for {date}...")
+                app.current_date_label.config(text=f"Fetching papers for {date}...")
                 
                 search_url = f'https://api.openalex.org/works?filter=concept.id:{concept_id},from_publication_date:{date},to_publication_date:{date}&sort=publication_date:desc'
                 papers_for_current_date = extract_papers_from_openalex_search(search_url, limit, date)
@@ -43,9 +43,9 @@ def execute_script(canvas, progress_var, progress_percentage_label):
                 papers_fetched_so_far += len(papers_for_current_date)
                 progress_percentage = (float(papers_fetched_so_far) / float(total_papers_for_period)) * 100
                 
-                update_progress_bar(progress_percentage, progress_var, progress_percentage_label)
-                root.update()
-                progress_bar.update_idletasks()
+                app.update_progress_bar(progress_percentage, app.progress_var, app.progress_percentage_label)
+                app.root.update()
+                app.progress_bar.update_idletasks()
                 
                 print(f"Total papers fetched so far: {papers_fetched_so_far}")
                 print(f"Papers fetched for {date}: {len(papers_for_current_date)}")
@@ -53,7 +53,7 @@ def execute_script(canvas, progress_var, progress_percentage_label):
                 
                 papers.extend(papers_for_current_date)
 
-        update_progress_bar(100, progress_var, progress_percentage_label)
+        app.update_progress_bar(100, app.progress_var, app.progress_percentage_label)
 
         df = pd.DataFrame(papers, columns=["DOI", "Title", "Authors", "Publication Date", "Abstract", "Concepts"])
         df['Cleaned Abstract'] = df['Abstract'].apply(clean_text).apply(lowercase_text)
@@ -77,18 +77,19 @@ def execute_script(canvas, progress_var, progress_percentage_label):
         sofc_positive_papers.to_excel('output.xlsx', index=False)
 
         # Update the status label when done
-        status_label.config(text="Execution complete!")
+        app.status_label.config(text="Execution complete!")
         # Re-enable the button
-        execute_button.config(state=tk.NORMAL)
-        show_data(sofc_positive_papers, main_frame,root)
-        canvas.configure(scrollregion=canvas.bbox("all"))
+        app.execute_button.config(state=tk.NORMAL)
+        app.show_data(sofc_positive_papers, app.main_frame,app.root)
+        app.canvas.configure(scrollregion=app.canvas.bbox("all"))
         
     except Exception as e:
         print(f"Error during execution: {e}")
-        status_label.config(text=f"Error: {e}")
+        app.status_label.config(text=f"Error: {e}")
         # Re-enable the button in case of an error
-        execute_button.config(state=tk.NORMAL)
+        app.execute_button.config(state=tk.NORMAL)
 
 if __name__ == "__main__":
-    root, execute_button, canvas, progress_percentage_label, current_date_label, progress_bar, status_label, concept_id_entry, from_publication_date_entry, to_publication_date_entry, target_embedding_word_entry, main_frame, additional_image, resized_image= initialize_gui(execute_script)
-    root.mainloop()
+    app = GUI(execute_script)
+    app.root.mainloop()
+
