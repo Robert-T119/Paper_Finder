@@ -34,7 +34,7 @@ def get_total_papers_for_period(from_date, to_date, concept_id):
 def extract_papers_from_openalex_search(search_url, limit, current_date):
     cursor = "*"
     papers = []
-    papers_fetched = 0  # Initialize counter
+    papers_fetched = 0  # Initialize counter_
 
     while len(papers) < limit:
         url = f"{search_url}&per_page=200&cursor={cursor}"
